@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Navigation Menu with Stopwatch</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #2c3e50; /* Darker background color */
+            transition: background-color 0.3s ease;
+            z-index: 1000;
+        }
+
+        #navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #navbar ul li {
+            float: left;
+        }
+
+        #navbar ul li a {
+            display: block;
+            color: #fff; /* Font color */
+            text-align: center;
+            padding: 15px 20px;
+            text-decoration: none;
+            transition: color 0.3s ease; /* Transition color change */
+        }
+
+        #navbar ul li a:hover {
+            background-color: #34495e; /* Hover background color */
+            color: #ffcccc; /* Text color on hover */
+        }
+
+        .content {
+            padding-top: 80px; /* Adjust based on navbar height */
+            height: 1000px; /* Just for demonstration */
+        }
+
+        #home {
+            background-color: #D9AFD9;
+            background-image: linear-gradient(0deg, #D9AFD9 0%, #97D9E1 100%);
+            display: flex; /* Use flexbox layout */
+        }
+
+        .left-content {
+            flex: 1; /* Take up remaining space */
+            padding: 20px;
+        }
+
+        .right-content {
+            flex: 1; /* Take up remaining space */
+            padding: 20px;
+            display: flex;
+            justify-content: flex-end; /* Align content to the right */
+            align-items: flex-start; /* Align content to the top */
+        }
+
+        /* Styles for Stopwatch */
+        .stopwatch-container {
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stopwatch {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stopwatch span {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .buttons {
+            text-align: center;
+        }
+
+        .buttons button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .buttons button:hover {
+            background-color: #2980b9;
+        }
+
+        #laps {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <ul>
+            <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="content" id="home">
+        <div class="left-content">
+            <div class="page-info">
+                <h1>Home Page</h1>
+                <!-- Add icon or description here -->
+            </div>
+            <!-- Home content goes here -->
+        </div>
+        
+        <!-- Stopwatch display and controls -->
+        <div class="right-content">
+            <div class="stopwatch-container">
+                <div class="stopwatch">
+                    <span id="display">00:00:00</span>
+                </div>
+                <div class="buttons">
+                    <button onclick="startStopwatch()">Start</button>
+                    <button onclick="pauseStopwatch()">Pause</button>
+                    <button onclick="resetStopwatch()">Reset</button>
+                    <button onclick="lap()">Lap</button>
+                </div>
+                <ul id="laps"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let startTime;
+        let running = false;
+        let timerInterval;
+        let laps = [];
+
+        function startStopwatch() {
+            if (!running) {
+                running = true;
+                startTime = Date.now() - (laps.length > 0 ? laps[laps.length - 1].time : 0);
+                timerInterval = setInterval(updateDisplay, 10);
+            }
+        }
+
+        function pauseStopwatch() {
+            running = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetStopwatch() {
+            running = false;
+            clearInterval(timerInterval);
+            document.getElementById('display').textContent = '00:00:00';
+            laps = [];
+            document.getElementById('laps').innerHTML = '';
+        }
+
+        function updateDisplay() {
+            const elapsedTime = Date.now() - startTime;
+            const formattedTime = formatTime(elapsedTime);
+            document.getElementById('display').textContent = formattedTime;
+        }
+
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const millisecondsFormatted = String(milliseconds % 1000).padStart(3, '0');
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${millisecondsFormatted.substr(0, 2)}`;
+        }
+
+        function lap() {
+            if (running) {
+                const lapTime = Date.now() - startTime;
+                laps.push({ lap: laps.length + 1, time: lapTime });
+                const formattedTime = formatTime(lapTime);
+                const lapElement = document.createElement('li');
+                lapElement.textContent = `Lap ${laps.length}: ${formattedTime}`;
+                document.getElementById('laps').appendChild(lapElement);
+            }
+        }
+    </script>
+</body>
+</html>
